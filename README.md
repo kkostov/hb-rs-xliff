@@ -20,16 +20,33 @@ let translation = sut.t(None, "Some text");
 
 ## Roadmap
 
-- [x] Read XLIFF 1.2 (https://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html)
+- [x] Basic support for importing translations from [XLIFF 1.2](https://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html)
 
 - [x] Provide a t("key") interface
 
-- [ ] Write XLIFF 1.2
+- [ ] Support for `<header>` elements
 
-- [ ] Read XLIFF 2.0 (http://docs.oasis-open.org/xliff/xliff-core/v2.0/xliff-core-v2.0.html)
+- [ ] Support for `<group>` elements
 
-- [ ] Write XLIFF 2.0
+- [ ] Support for `<context>` elements
 
-- [ ] Read TMX (https://www.gala-global.org/tmx-14b)
+- [ ] Support for `<alt-trans>` elements
 
-- [ ] Write TMX
+- [ ] Support for `xml:lang` attributes
+
+- [ ] Support loading files which contain multiple languages
+
+- [ ] Export translations to XLIFF 1.2
+
+- [ ] Import translations from [XLIFF 2.0](http://docs.oasis-open.org/xliff/xliff-core/v2.0/xliff-core-v2.0.html)
+
+- [ ] Export translations to XLIFF 2.0
+
+
+## Acknowledgements
+
+* Depends on [quick-xml](https://crates.io/crates/quick-xml)
+
+
+* The names "OASIS" and "XLIFF" are trademarks of [OASIS](https://www.oasis-open.org/), 
+the owner and developer of the XLIFF specification.
