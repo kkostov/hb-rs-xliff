@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2"
+       xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+    <file original="SampleApp/Base.lproj/Main.storyboard" source-language="en" target-language="bg"
+          datatype="plaintext">
+        <header>
+            <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="11.0" build-num="11M362v"/>
+        </header>
+        <body>
+            <trans-unit id="fIC-hX-uRv.text" xml:space="preserve">
+                <source>Pet projects are awesome</source>
+                <target>Странични проекти</target>
+                <note>Class = "UILabel"; text = "Pet projects are awesome"; ObjectID = "fIC-hX-uRv";</note>
+            </trans-unit>
+        </body>
+    </file>
+    <file original="SampleApp/en.lproj/InfoPlist.strings" datatype="plaintext" source-language="en"
+          target-language="bg">
+        <header>
+            <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="11.0" build-num="11M362v"/>
+        </header>
+        <body>
+            <trans-unit id="CFBundleName" xml:space="preserve">
+                <source>SampleApp</source>
+                <note>Bundle name</note>
+            </trans-unit>
+            <trans-unit id="2" xml:space="preserve" translate="false">
+                <source>Do not translate this</source>
+                <note>A note from the author</note>
+            </trans-unit>
+        </body>
+    </file>
+    <file original="SampleApp/en.lproj/Localizable.strings" datatype="plaintext" source-language="en"
+          target-language="bg">
+        <header>
+            <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="11.0" build-num="11M362v"/>
+        </header>
+        <body>
+            <trans-unit id="More text" xml:space="preserve">
+                <source>More text</source>
+                <target>Още текст</target>
+                <note>No comment provided by engineer.</note>
+            </trans-unit>
+            <trans-unit id="Some text" xml:space="preserve">
+                <source>Some text</source>
+                <note>comment from developers</note>
+      </trans-unit>
+            <trans-unit id="Some text" xml:space="preserve">
+                <source>Some text</source>
+                <target xml:lang="fr">je précise quelque chose de très...</target>
+                <note>comment from developers</note>
+            </trans-unit>
+            <trans-unit id="9" resname="love">
+                <source xml:lang="en">Made with ❤</source>
+                <target xml:lang="de-AT">❤</target>
+                <note>lh-check { min: 10, max: 15 }</note>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
