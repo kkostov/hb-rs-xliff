@@ -33,7 +33,3 @@ let translation = sut.t(None, "Some text");
 - [ ] Read TMX (https://www.gala-global.org/tmx-14b)
 
 - [ ] Write TMX
-
-- [ ] Read Fluent (https://projectfluent.org/fluent/guide/)
-
-- [ ] Write Fluent
