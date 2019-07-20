@@ -1,19 +1,18 @@
 //! Defines helper functions which can be used to retrieve translations
 
-use std::path::PathBuf;
 use crate::store::{Store, Unit};
 use std::fs::File;
 use std::io::Read;
+use std::path::PathBuf;
 
 /// Translation helper
 pub struct T {
-    store: Store
+    store: Store,
 }
 
 impl T {
     /// Initializes a repository for the specified translation format.
     pub fn load(path: &PathBuf) -> Self {
-
         let mut file = File::open(path).expect("Failed to open the file");
 
         let mut buffer: Vec<u8> = Default::default();
@@ -22,8 +21,7 @@ impl T {
         let mut store: Store = Store::new();
         store.load(buffer.iter().as_slice());
 
-
-        return T{store};
+        return T { store };
     }
 
     /// Returns the first translation matching the provided key.
@@ -36,12 +34,10 @@ impl T {
                         return u.id == String::from(key);
                     }) {
                         None => (),
-                        Some(result) => {
-                            return Some(result)
-                        },
+                        Some(result) => return Some(result),
                     }
                 }
-            },
+            }
             Some(address) => {
                 match self.store.groups.iter().find(|g| {
                     return g.address == String::from(address);
@@ -52,13 +48,11 @@ impl T {
                             return u.id == String::from(key);
                         }) {
                             None => (),
-                            Some(result) => {
-                                return Some(result)
-                            },
+                            Some(result) => return Some(result),
                         }
-                    },
+                    }
                 }
-            },
+            }
         }
 
         return None;

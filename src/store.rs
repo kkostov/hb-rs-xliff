@@ -67,9 +67,7 @@ impl Unit {
     pub fn source_text(&self) -> Option<&String> {
         match self.source.as_ref() {
             None => None,
-            Some(t) => {
-                Some(&t.text)
-            },
+            Some(t) => Some(&t.text),
         }
     }
 
@@ -77,9 +75,7 @@ impl Unit {
     pub fn target_text(&self) -> Option<&String> {
         match self.target.as_ref() {
             None => None,
-            Some(t) => {
-                Some(&t.text)
-            },
+            Some(t) => Some(&t.text),
         }
     }
 }

@@ -1,8 +1,28 @@
-# Goals
+XLIFF Parser
+====================
+
+[![Build Status](https://travis-ci.com/kkostov/hb-rs-xliff.svg?branch=master)](https://travis-ci.com/kkostov/hb-rs-xliff)
+
+This is a library for reading and writing localized text stored in XLIFF format.
+
+
+## Example
+
+```rust no-run
+
+let path: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "simplev1_2.xliff"]
+        .iter()
+        .collect();
+let translations = T::load(&path);
+
+let translation = sut.t(None, "Some text");
+```
+
+## Roadmap
 
 - [x] Read XLIFF 1.2 (https://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html)
 
-- [ ] Provide a t("key") interface
+- [x] Provide a t("key") interface
 
 - [ ] Write XLIFF 1.2
 

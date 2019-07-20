@@ -16,9 +16,18 @@ fn test_t_get_translation() {
     let translation = result.unwrap();
 
     assert_eq!(translation.id, "fIC-hX-uRv.text");
-    assert_eq!(translation.source_text().unwrap(), "Pet projects are awesome");
-    assert_eq!(translation.target_text().unwrap(), "Странични проекти");
-    assert_eq!(translation.note.as_ref().unwrap().text, r#"Class = "UILabel"; text = "Pet projects are awesome"; ObjectID = "fIC-hX-uRv";"#);
+    assert_eq!(
+        translation.source_text().unwrap(),
+        "Pet projects are awesome"
+    );
+    assert_eq!(
+        translation.target_text().unwrap(),
+        "Странични проекти"
+    );
+    assert_eq!(
+        translation.note.as_ref().unwrap().text,
+        r#"Class = "UILabel"; text = "Pet projects are awesome"; ObjectID = "fIC-hX-uRv";"#
+    );
 }
 
 #[test]

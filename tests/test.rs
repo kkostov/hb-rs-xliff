@@ -157,10 +157,7 @@ fn test_sample_source_target_retrievers() {
         sut.groups[0].units[0].target_text().unwrap(),
         "Странични проекти"
     );
-    assert_eq!(
-        sut.groups[1].units[0].source_text().unwrap(),
-        "SampleApp"
-    );
+    assert_eq!(sut.groups[1].units[0].source_text().unwrap(), "SampleApp");
     assert_eq!(
         sut.groups[1].units[1].source_text().unwrap(),
         "Do not translate this"
