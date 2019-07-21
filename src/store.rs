@@ -178,56 +178,79 @@ impl Store {
         let mut buf = Vec::new();
         let mut r = Reader::from_reader(r);
 
-        let mut document_context = DocumentContext::Unknown;
-
-        let mut text_context = Context::Unknown;
+        let mut tags: Vec<TagCtx> = vec![];
 
         loop {
             match r.read_event(&mut buf).unwrap() {
-                Start(ref e) => match e.name() {
-                    b"file" => self.handle_file(e),
-                    b"trans-unit" => self.handle_trans_unit(e),
-                    b"source" => text_context = Context::Source,
-                    b"target" => text_context = Context::Target,
-                    b"note" => text_context = Context::Note,
-                    b"header" => document_context = DocumentContext::Header,
-                    b"body" => document_context = DocumentContext::Body,
-                    _ => (),
-                },
-                End(ref e) => {
-                    text_context = Context::Unknown;
-                }
-                Text(e) => match text_context {
-                    Context::Source => match self.groups.last_mut().unwrap().units.last_mut() {
-                        None => panic!("found a source tag without a parent <trans-unit>"),
-                        Some(unit) => {
-                            unit.source = Some(UnitValue {
-                                text: e.unescape_and_decode(&r).unwrap(),
-                            })
-                        }
-                    },
-                    Context::Target => match self.groups.last_mut().unwrap().units.last_mut() {
-                        None => panic!("found a target tag without a parent <trans-unit>"),
-                        Some(unit) => {
-                            unit.target = Some(UnitValue {
-                                text: e.unescape_and_decode(&r).unwrap(),
-                            })
-                        }
-                    },
-                    Context::Note => match self.groups.last_mut().unwrap().units.last_mut() {
-                        None => panic!("found a note tag without a parent <trans-unit>"),
-                        Some(unit) => {
-                            unit.note = Some(UnitValue {
-                                text: e.unescape_and_decode(&r).unwrap(),
-                            })
+                Start(ref e) => {
+                    if let Some(tag) = TagCtx::from(e.name()) {
+                        Store::open_tag(&mut tags, tag);
+                        match tag {
+                            TagCtx::File => self.handle_file(e),
+                            TagCtx::Unit => self.handle_trans_unit(e),
+                            _ => ()
                         }
                     }
-                    _ => {}
                 },
+                End(ref e) => {
+                    if let Some(tag) = TagCtx::from(e.name()) {
+                        Store::close_tag(&mut tags, tag);
+                    }
+                },
+                Text(e) => {
+                    match tags.last() {
+                        None => (),
+                        Some(tag) => {
+                            match tag {
+                                TagCtx::Source => {
+                                    self.add_unit_source(e.unescape_and_decode(&r).unwrap())
+                                }
+                                TagCtx::Target => {
+                                    self.add_unit_target(e.unescape_and_decode(&r).unwrap())
+                                }
+                                TagCtx::Note => {
+                                    let count = tags.len();
+                                    if count >= 2 {
+                                        match &tags[count - 2] {
+                                            TagCtx::Header => {
+                                                // header note
+                                            }
+                                            TagCtx::Unit => self
+                                                .add_unit_note(e.unescape_and_decode(&r).unwrap()),
+                                            _ => (),
+                                        }
+                                    }
+                                }
+                                _ => (),
+                            }
+                        }
+                    }
+                }
                 Eof => break,
                 _ => (),
             }
             buf.clear();
+        }
+    }
+
+    fn add_unit_source(&mut self, text: String) {
+        match self.groups.last_mut().unwrap().units.last_mut() {
+            None => (),
+            Some(unit) => unit.source = Some(UnitValue { text }),
+        }
+    }
+
+    fn add_unit_target(&mut self, text: String) {
+        match self.groups.last_mut().unwrap().units.last_mut() {
+            None => (),
+            Some(unit) => unit.target = Some(UnitValue { text }),
+        }
+    }
+
+    fn add_unit_note(&mut self, text: String) {
+        match self.groups.last_mut().unwrap().units.last_mut() {
+            None => (),
+            Some(unit) => unit.note = Some(UnitValue { text }),
         }
     }
 
@@ -274,18 +297,51 @@ impl Store {
         });
         self.groups.push(file);
     }
+
+    fn open_tag(tags: &mut Vec<TagCtx>, open_tag: TagCtx) -> () {
+        tags.push(open_tag)
+    }
+
+    fn close_tag(tags: &mut Vec<TagCtx>, close_tag: TagCtx) -> () {
+        let mut tag_closed = false;
+        while !tag_closed {
+            match tags.pop() {
+                None => {
+                    tag_closed = true;
+                }
+                Some(tag) => {
+                    if tag == close_tag {
+                        tag_closed = true;
+                    }
+                }
+            }
+        }
+    }
 }
 
-enum Context {
-    Unknown,
+/// The XML tag in which the current operation is taking place
+#[derive(PartialEq, Copy, Clone)]
+enum TagCtx {
+    File,
+    Header,
+    Body,
     Source,
     Target,
     Note,
     Unit,
 }
 
-enum DocumentContext {
-    Unknown,
-    Header,
-    Body
+impl TagCtx {
+    fn from(name: &[u8]) -> Option<Self> {
+        match name {
+            b"file" => Some(TagCtx::File),
+            b"header" => Some(TagCtx::Header),
+            b"body" => Some(TagCtx::Body),
+            b"source" => Some(TagCtx::Source),
+            b"target" => Some(TagCtx::Target),
+            b"note" => Some(TagCtx::Note),
+            b"trans-unit" => Some(TagCtx::Unit),
+            _ => None
+        }
+    }
 }
