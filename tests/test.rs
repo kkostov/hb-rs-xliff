@@ -24,7 +24,7 @@ fn test_sample_as_xml_count_all_tags() {
         buf.clear();
     }
 
-    assert_eq!(count, 35);
+    assert_eq!(count, 39);
 }
 
 #[test]
@@ -33,7 +33,7 @@ fn test_sample_reads_file_tags() {
     let mut sut: xliff::store::Store = Store::new();
     sut.load(src);
 
-    assert_eq!(sut.groups.len(), 3);
+    assert_eq!(sut.groups.len(), 4);
 }
 
 #[test]
@@ -181,4 +181,66 @@ fn test_file_using_file_reader() {
         sut.groups[0].units[0].source.clone().unwrap().text,
         "Pet projects are awesome"
     );
+}
+
+#[test]
+fn test_creates_header() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    assert!(sut.groups[0].header.is_some());
+    assert!(sut.groups[1].header.is_some());
+    assert!(sut.groups[2].header.is_some());
+
+    assert!(sut.groups[3].header.is_none());
+}
+
+#[test]
+fn test_creates_header_notes() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    assert_eq!(sut.groups[0].header.as_ref().unwrap().notes.len(), 2);
+    assert_eq!(
+        sut.groups[0].header.as_ref().unwrap().notes[0].text,
+        "This is a header note"
+    );
+    assert_eq!(
+        sut.groups[0].header.as_ref().unwrap().notes[1].text,
+        "This is another header note"
+    );
+}
+
+#[test]
+fn test_creates_tools() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    assert_eq!(sut.groups[0].header.as_ref().unwrap().tools.len(), 1);
+    assert_eq!(
+        sut.groups[0].header.as_ref().unwrap().tools[0].id,
+        "com.apple.dt.xcode"
+    );
+    assert_eq!(
+        sut.groups[0].header.as_ref().unwrap().tools[0].name,
+        "Xcode"
+    );
+
+    assert!(sut.groups[0].header.as_ref().unwrap().tools[0]
+        .version
+        .is_some());
+    assert_eq!(
+        sut.groups[0].header.as_ref().unwrap().tools[0]
+            .version
+            .clone()
+            .unwrap(),
+        "11.0"
+    );
+
+    assert!(sut.groups[0].header.as_ref().unwrap().tools[0]
+        .company
+        .is_none());
 }
