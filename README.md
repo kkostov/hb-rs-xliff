@@ -30,21 +30,73 @@ assert_eq!(
 
 [Version history](./CHANGELOG.md)
 
+## Parse XLIFF 1.2
+
+[Spec](http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html)
+
+
+### Implementation status
+
+.
+- [ ] `<xliff>`  
+    - [x] `<file>`
+         - [x] `<header>`
+            - [ ] `<skl>`
+                - [ ] `<internal-file> | <external-file>`
+            - [ ] `<phase-group>`
+                - [ ] `<phase>`
+                - [ ] `note`
+            - [ ] `<glossary>`
+                - [ ] `<internal-file> | <external-file>`
+            - [ ] `<reference>`
+                - [ ] `<internal-file> | <external-file>`
+            - [ ] `<count-group>`
+                - [ ] `<count>`
+            - [x] `<tool>`
+            - [ ] `<prop-group>`
+                - [ ] `<prop>`
+            - [x] `<note>`
+         - [x] `<body>`
+            - [ ] `<group>`
+                - [ ] `<context-group>`
+                    - [ ] `<context>`
+                - [ ] `<count-group>`
+                    - [ ] `<count>`
+                - [ ] `<prop-group>`
+                    - [ ] `<prop>`
+                - [ ] `<note>`
+            - [x] `<trans-unit>`
+                - [x] `<source>`
+                - [x] `<target>`
+                - [ ] `<context-group>`
+                    - [ ] `<context>`
+                - [ ] `<count-group>`
+                    - [ ] `<count>`
+                - [ ] `<prop-group>`
+                    - [ ] `<prop>`
+                - [ ] `<seg-srouce>`
+                - [x] `<note>`
+                - [ ] `<alt-trans>`
+            - [ ] `<bin-unit>`
+                - [ ] `<bin-source>`
+                - [ ] `<bin-target>`
+                - [ ] `<context-group>`
+                    - [ ] `<context>`
+                - [ ] `<count-group>`
+                    - [ ] `<count>`
+                - [ ] `<prop-group>`
+                    - [ ] `<prop>`
+         - [ ] `<note>`
+         - [ ] `<trans-unit>`
+   
+
 ## Roadmap
 
 - [x] Basic support for importing translations from [XLIFF 1.2](https://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html)
 
 - [x] Provide a t("key") interface
 
-- [ ] Support for `<header>` elements
-
-- [ ] Support for `<group>` elements
-
-- [ ] Support for `<context>` elements
-
-- [ ] Support for `<alt-trans>` elements
-
-- [ ] Support for `xml:lang` attributes
+- [ ] Complete parsing support for XLIFF 1.2
 
 - [ ] Support loading files which contain multiple languages
 
