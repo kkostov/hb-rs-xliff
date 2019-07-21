@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use std::path::{PathBuf};
+use std::path::PathBuf;
 use xliff::t::T;
 
 #[test]

@@ -3,7 +3,7 @@
 use crate::store::{Store, Unit};
 use std::fs::File;
 use std::io::Read;
-use std::path::{Path};
+use std::path::Path;
 
 /// Translation helper
 pub struct T {
