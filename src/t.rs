@@ -98,4 +98,73 @@ impl T {
 
         return None;
     }
+
+    /// Returns the first translation matching the provided `source_text`.
+    ///
+    /// The value of `source_text` is used to a matching `<trans-unit>` based on the value of its
+    /// `<source>` element.
+    ///
+    /// The specificity of the match can be increased by providing a value for `domain`
+    /// which is used to match against the `address` attribute of `<file>` elements.
+    ///
+    /// # Example
+    ///
+    /// The following example will retrieve the first translation unit with source `Some text`:
+    ///
+    /// ```
+    /// use std::env;
+    /// use xliff::t::T;
+    ///
+    /// let translations = T::load("./en.xliff");
+    ///
+    ///    match translations.t_source(None, "Some text") {
+    ///        None => println!("translation not found"),
+    ///        Some(unit) => println!("> {}", unit.target_text().unwrap_or(&String::new())),
+    ///    }
+    /// ```
+    ///
+    /// Explicitly specify the file in which to lookup the translation unit:
+    ///
+    /// ```
+    /// use std::env;
+    /// use xliff::t::T;
+    ///
+    /// let translations = T::load("./en.xliff");
+    ///
+    ///    match translations.t_source(Some("SampleApp/en.lproj/Localizable.strings"), "Some text") {
+    ///        None => println!("translation not found"),
+    ///        Some(unit) => println!("> {}", unit.target_text().unwrap_or(&String::new())),
+    ///    }
+    /// ```
+    pub fn t_source(&self, domain: Option<&str>, source_text: &str) -> Option<&Unit> {
+        match domain {
+            None => {
+                for group in self.store.groups.iter() {
+                    match group.units.iter().find(|u| {
+                        return u.source_text() == Some(&String::from(source_text));
+                    }) {
+                        None => (),
+                        Some(result) => return Some(result),
+                    }
+                }
+            }
+            Some(address) => {
+                match self.store.groups.iter().find(|g| {
+                    return g.address == String::from(address);
+                }) {
+                    None => (),
+                    Some(group) => {
+                        match group.units.iter().find(|u| {
+                            return u.source_text() == Some(&String::from(source_text));
+                        }) {
+                            None => (),
+                            Some(result) => return Some(result),
+                        }
+                    }
+                }
+            }
+        }
+
+        return None;
+    }
 }

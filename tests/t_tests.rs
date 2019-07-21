@@ -12,7 +12,7 @@ fn test_t_get_translation() {
 
     let result = sut.t(None, "fIC-hX-uRv.text");
 
-    assert!(result.is_some(), true);
+    assert!(result.is_some());
     let translation = result.unwrap();
 
     assert_eq!(translation.id, "fIC-hX-uRv.text");
@@ -38,10 +38,10 @@ fn test_t_get_translation_twice() {
     let sut = T::load(&path);
 
     let result1 = sut.t(None, "fIC-hX-uRv.text");
-    assert!(result1.is_some(), true);
+    assert!(result1.is_some());
 
     let result2 = sut.t(None, "fIC-hX-uRv.text");
-    assert!(result2.is_some(), true);
+    assert!(result2.is_some());
 }
 
 #[test]
@@ -52,10 +52,10 @@ fn test_t_load_using_path() {
     let sut = T::load(&d.to_str().unwrap());
 
     let result1 = sut.t(None, "fIC-hX-uRv.text");
-    assert!(result1.is_some(), true);
+    assert!(result1.is_some());
 
     let result2 = sut.t(None, "fIC-hX-uRv.text");
-    assert!(result2.is_some(), true);
+    assert!(result2.is_some());
 }
 
 #[test]
@@ -66,8 +66,36 @@ fn test_t_get_translation_with_domain() {
     let sut = T::load(&d.to_str().unwrap());
 
     let result1 = sut.t(Some("SampleApp/en.lproj/InfoPlist.strings"), "More text");
-    assert!(result1.is_some(), true);
+    assert!(result1.is_some());
 
     let result2 = sut.t(Some("SampleApp/en.lproj/Localizable.strings"), "More text");
-    assert!(result2.is_some(), true);
+    assert!(result2.is_some());
+}
+
+#[test]
+fn test_t_get_translation_with_source() {
+    let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    d.push("tests/simplev1_2.xliff");
+
+    let sut = T::load(&d.to_str().unwrap());
+
+    let result1 = sut.t_source(None, "Some text");
+    assert!(result1.is_some());
+    assert_eq!(result1.unwrap().source_text().unwrap(), "Some text");
+}
+
+#[test]
+fn test_t_get_translation_with_source_and_domain() {
+    let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    d.push("tests/simplev1_2.xliff");
+
+    let sut = T::load(&d.to_str().unwrap());
+
+    let result1 = sut.t_source(Some("SampleApp/en.lproj/InfoPlist.strings"), "More text");
+    assert!(result1.is_some());
+    assert_eq!(result1.unwrap().source_text().unwrap(), "More text");
+
+    let result2 = sut.t_source(Some("SampleApp/en.lproj/Localizable.strings"), "More text");
+    assert!(result2.is_some());
+    assert_eq!(result2.unwrap().source_text().unwrap(), "More text");
 }
