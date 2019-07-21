@@ -24,7 +24,7 @@ fn test_sample_as_xml_count_all_tags() {
         buf.clear();
     }
 
-    assert_eq!(count, 39);
+    assert_eq!(count, 43);
 }
 
 #[test]
@@ -78,7 +78,7 @@ fn test_sample_reads_translation_units() {
     assert_eq!(sut.groups[0].units[0].id, "fIC-hX-uRv.text");
     assert_eq!(sut.groups[0].units[0].translate, true);
 
-    assert_eq!(sut.groups[1].units.len(), 2);
+    assert_eq!(sut.groups[1].units.len(), 3);
     assert_eq!(sut.groups[1].units[0].id, "CFBundleName");
     assert_eq!(sut.groups[1].units[0].translate, true);
     assert_eq!(sut.groups[1].units[1].id, "2");

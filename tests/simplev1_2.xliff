@@ -30,6 +30,11 @@
                 <source>Do not translate this</source>
                 <note>A note from the author</note>
             </trans-unit>
+            <trans-unit id="More text" xml:space="preserve">
+                <source>More text</source>
+                <target>Още текст</target>
+                <note>No comment provided by engineer.</note>
+            </trans-unit>
         </body>
     </file>
     <file original="SampleApp/en.lproj/Localizable.strings" datatype="plaintext" source-language="en"
@@ -46,8 +51,8 @@
             <trans-unit id="Some text" xml:space="preserve">
                 <source>Some text</source>
                 <note>comment from developers</note>
-      </trans-unit>
-            <trans-unit id="Some text" xml:space="preserve">
+            </trans-unit>
+            <trans-unit id="Some text2" xml:space="preserve">
                 <source>Some text</source>
                 <target xml:lang="fr">je précise quelque chose de très...</target>
                 <note>comment from developers</note>

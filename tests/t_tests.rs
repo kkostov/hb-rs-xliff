@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use std::path::PathBuf;
+use std::path::{PathBuf};
 use xliff::t::T;
 
 #[test]
@@ -41,5 +41,33 @@ fn test_t_get_translation_twice() {
     assert!(result1.is_some(), true);
 
     let result2 = sut.t(None, "fIC-hX-uRv.text");
+    assert!(result2.is_some(), true);
+}
+
+#[test]
+fn test_t_load_using_path() {
+    let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    d.push("tests/simplev1_2.xliff");
+
+    let sut = T::load(&d.to_str().unwrap());
+
+    let result1 = sut.t(None, "fIC-hX-uRv.text");
+    assert!(result1.is_some(), true);
+
+    let result2 = sut.t(None, "fIC-hX-uRv.text");
+    assert!(result2.is_some(), true);
+}
+
+#[test]
+fn test_t_get_translation_with_domain() {
+    let mut d = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    d.push("tests/simplev1_2.xliff");
+
+    let sut = T::load(&d.to_str().unwrap());
+
+    let result1 = sut.t(Some("SampleApp/en.lproj/InfoPlist.strings"), "More text");
+    assert!(result1.is_some(), true);
+
+    let result2 = sut.t(Some("SampleApp/en.lproj/Localizable.strings"), "More text");
     assert!(result2.is_some(), true);
 }
