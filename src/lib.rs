@@ -9,7 +9,7 @@
 //! ## Example
 //!
 //! Lookup translation by source text keyword:
-//!```rust
+//!```rust,no_run
 //! use std::env;
 //! use xliff::t::T;
 //!
@@ -23,7 +23,7 @@
 //!
 //!
 //! Lookup translation by translation unit id:
-//!```rust
+//!```rust,no_run
 //! use std::env;
 //! use xliff::t::T;
 //!

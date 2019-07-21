@@ -42,7 +42,7 @@ impl T {
     ///
     /// The following example will retrieve the first translation unit with id `fIC-hX-uRv.text`:
     ///
-    /// ```
+    /// ```rust,no_run
     /// use std::env;
     /// use xliff::t::T;
     ///
@@ -56,7 +56,7 @@ impl T {
     ///
     /// Explicitly specify the file in which to lookup the translation unit:
     ///
-    /// ```
+    /// ```rust,no_run
     /// use std::env;
     /// use xliff::t::T;
     ///
@@ -111,7 +111,7 @@ impl T {
     ///
     /// The following example will retrieve the first translation unit with source `Some text`:
     ///
-    /// ```
+    /// ```rust,no_run
     /// use std::env;
     /// use xliff::t::T;
     ///
@@ -125,7 +125,7 @@ impl T {
     ///
     /// Explicitly specify the file in which to lookup the translation unit:
     ///
-    /// ```
+    /// ```rust,no_run
     /// use std::env;
     /// use xliff::t::T;
     ///
