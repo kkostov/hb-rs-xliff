@@ -16,7 +16,19 @@ let path: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "simplev1_2.xliff"]
 let translations = T::load(&path);
 
 let translation = sut.t(None, "Some text");
+
+assert_eq!(
+        translation.source_text().unwrap(),
+        "Some text"
+    );
+    assert_eq!(
+        translation.target_text().unwrap(),
+        "je précise quelque chose de très..."
+    );
 ```
+## Changelog
+
+[Version history](./CHANGELOG.md)
 
 ## Roadmap
 
