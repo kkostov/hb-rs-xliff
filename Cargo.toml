@@ -1,16 +1,15 @@
 [package]
 name = "xliff"
 description = "Library for reading and writing localized text stored in XLIFF format."
-keywords = ["xliff", "i18n", "multi-language", "static", "localization", "translation"]
+keywords = ["xliff", "i18n", "multi-language", "localization", "translation"]
 categories = ["internationalization", "localization"]
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Konstantin Kostov <konstantin@headbright.be>"]
 edition = "2018"
-
 readme = "README.md"
-
 license = "Apache-2.0"
 repository = "https://github.com/kkostov/hb-rs-xliff"
+exclude = [".idea/*"]
 
 [dependencies]
 quick-xml = "^0.15.0"
