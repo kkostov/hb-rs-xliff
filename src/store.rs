@@ -126,6 +126,30 @@ impl TranslationFile {
     }
 }
 
+/// Tool - The <tool> element describes the tool that has been used
+/// to execute a given task in the document.
+/// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#tool_elem
+pub struct Tool {
+    /// Tool identifier - The tool-id attribute allows unique identification of a <tool> element.
+    /// It is also used in other elements in the file to refer to the given <tool> element.
+    pub id: String,
+    /// Tool name - The tool-name attribute specifies the name of a given tool.
+    pub name: String,
+    /// Tool version - The tool-version attribute specifies the version of a given tool.
+    pub version: String,
+    /// Tool company - The tool-company attribute specifies the company from which a tool originates.
+    pub company: String,
+}
+
+/// File header - The <header> element contains metadata relating to the <file> element.
+/// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#header
+pub struct Header {
+    /// Tools used within this document
+    pub tools: Vec<Tool>,
+    ///Localization-related comments to the XLIFF document
+    pub notes: Vec<UnitValue>,
+}
+
 /// A helper class which can be used to parse XLIFF
 pub struct Store {
     /// A collection of file groups
@@ -154,36 +178,26 @@ impl Store {
         let mut buf = Vec::new();
         let mut r = Reader::from_reader(r);
 
-        let mut tu_context: bool = false;
-        let mut tag_context: Context = Context::Unknown;
+        let mut document_context = DocumentContext::Unknown;
+
+        let mut text_context = Context::Unknown;
 
         loop {
             match r.read_event(&mut buf).unwrap() {
                 Start(ref e) => match e.name() {
                     b"file" => self.handle_file(e),
-                    b"trans-unit" => {
-                        tu_context = true;
-                        self.handle_trans_unit(e);
-                    }
-                    b"source" => {
-                        tag_context = Context::Source;
-                    }
-                    b"target" => {
-                        tag_context = Context::Target;
-                    }
-                    b"note" => {
-                        tag_context = Context::Note;
-                    }
+                    b"trans-unit" => self.handle_trans_unit(e),
+                    b"source" => text_context = Context::Source,
+                    b"target" => text_context = Context::Target,
+                    b"note" => text_context = Context::Note,
+                    b"header" => document_context = DocumentContext::Header,
+                    b"body" => document_context = DocumentContext::Body,
                     _ => (),
                 },
                 End(ref e) => {
-                    match e.name() {
-                        b"trans-unit" => tu_context = false,
-                        _ => (),
-                    }
-                    tag_context = Context::Unknown;
+                    text_context = Context::Unknown;
                 }
-                Text(e) => match tag_context {
+                Text(e) => match text_context {
                     Context::Source => match self.groups.last_mut().unwrap().units.last_mut() {
                         None => panic!("found a source tag without a parent <trans-unit>"),
                         Some(unit) => {
@@ -200,16 +214,12 @@ impl Store {
                             })
                         }
                     },
-                    Context::Note => {
-                        if tu_context {
-                            match self.groups.last_mut().unwrap().units.last_mut() {
-                                None => panic!("found a note tag without a parent <trans-unit>"),
-                                Some(unit) => {
-                                    unit.note = Some(UnitValue {
-                                        text: e.unescape_and_decode(&r).unwrap(),
-                                    })
-                                }
-                            }
+                    Context::Note => match self.groups.last_mut().unwrap().units.last_mut() {
+                        None => panic!("found a note tag without a parent <trans-unit>"),
+                        Some(unit) => {
+                            unit.note = Some(UnitValue {
+                                text: e.unescape_and_decode(&r).unwrap(),
+                            })
                         }
                     }
                     _ => {}
@@ -271,4 +281,11 @@ enum Context {
     Source,
     Target,
     Note,
+    Unit,
+}
+
+enum DocumentContext {
+    Unknown,
+    Header,
+    Body
 }
