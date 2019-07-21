@@ -1,7 +1,7 @@
 //! Defines a translation store implementation which can be used to interact with XLIFF files
 
 use quick_xml::events::BytesStart;
-use quick_xml::events::Event::{End, Eof, Start, Text};
+use quick_xml::events::Event::{Empty, End, Eof, Start, Text};
 use quick_xml::Reader;
 use std::io::BufRead;
 
@@ -112,6 +112,9 @@ pub struct TranslationFile {
     pub units: Vec<Unit>,
     /// Data type - The datatype attribute specifies the kind of text contained in the element.
     pub data_type: String,
+
+    /// File header
+    pub header: Option<Header>,
 }
 
 impl TranslationFile {
@@ -122,6 +125,7 @@ impl TranslationFile {
             target_locale: None,
             units: vec![],
             data_type: String::new(),
+            header: None,
         }
     }
 }
@@ -136,9 +140,20 @@ pub struct Tool {
     /// Tool name - The tool-name attribute specifies the name of a given tool.
     pub name: String,
     /// Tool version - The tool-version attribute specifies the version of a given tool.
-    pub version: String,
+    pub version: Option<String>,
     /// Tool company - The tool-company attribute specifies the company from which a tool originates.
-    pub company: String,
+    pub company: Option<String>,
+}
+
+impl Tool {
+    fn new(id: String, name: String) -> Self {
+        Tool {
+            id,
+            name,
+            version: None,
+            company: None,
+        }
+    }
 }
 
 /// File header - The <header> element contains metadata relating to the <file> element.
@@ -148,6 +163,16 @@ pub struct Header {
     pub tools: Vec<Tool>,
     ///Localization-related comments to the XLIFF document
     pub notes: Vec<UnitValue>,
+}
+
+impl Header {
+    /// Returns an empty header instance
+    fn new() -> Self {
+        Header {
+            tools: vec![],
+            notes: vec![],
+        }
+    }
 }
 
 /// A helper class which can be used to parse XLIFF
@@ -188,44 +213,48 @@ impl Store {
                         match tag {
                             TagCtx::File => self.handle_file(e),
                             TagCtx::Unit => self.handle_trans_unit(e),
-                            _ => ()
+                            TagCtx::Header => self.handle_file_header(e),
+                            _ => (),
                         }
                     }
-                },
+                }
+                Empty(ref e) => {
+                    if let Some(tag) = TagCtx::from(e.name()) {
+                        Store::open_tag(&mut tags, tag);
+                        match tag {
+                            TagCtx::Tool => self.handle_header_tool(e),
+                            _ => (),
+                        }
+                        Store::close_tag(&mut tags, tag);
+                    }
+                }
                 End(ref e) => {
                     if let Some(tag) = TagCtx::from(e.name()) {
                         Store::close_tag(&mut tags, tag);
                     }
-                },
-                Text(e) => {
-                    match tags.last() {
-                        None => (),
-                        Some(tag) => {
-                            match tag {
-                                TagCtx::Source => {
-                                    self.add_unit_source(e.unescape_and_decode(&r).unwrap())
-                                }
-                                TagCtx::Target => {
-                                    self.add_unit_target(e.unescape_and_decode(&r).unwrap())
-                                }
-                                TagCtx::Note => {
-                                    let count = tags.len();
-                                    if count >= 2 {
-                                        match &tags[count - 2] {
-                                            TagCtx::Header => {
-                                                // header note
-                                            }
-                                            TagCtx::Unit => self
-                                                .add_unit_note(e.unescape_and_decode(&r).unwrap()),
-                                            _ => (),
-                                        }
+                }
+                Text(e) => match tags.last() {
+                    None => (),
+                    Some(tag) => match tag {
+                        TagCtx::Source => self.add_unit_source(e.unescape_and_decode(&r).unwrap()),
+                        TagCtx::Target => self.add_unit_target(e.unescape_and_decode(&r).unwrap()),
+                        TagCtx::Note => {
+                            let count = tags.len();
+                            if count >= 2 {
+                                match &tags[count - 2] {
+                                    TagCtx::Header => {
+                                        self.add_header_note(e.unescape_and_decode(&r).unwrap())
                                     }
+                                    TagCtx::Unit => {
+                                        self.add_unit_note(e.unescape_and_decode(&r).unwrap())
+                                    }
+                                    _ => (),
                                 }
-                                _ => (),
                             }
                         }
-                    }
-                }
+                        _ => (),
+                    },
+                },
                 Eof => break,
                 _ => (),
             }
@@ -254,6 +283,13 @@ impl Store {
         }
     }
 
+    fn add_header_note(&mut self, text: String) {
+        match self.groups.last_mut().unwrap().header.as_mut() {
+            None => (),
+            Some(header) => header.notes.push(UnitValue { text }),
+        }
+    }
+
     fn handle_trans_unit(&mut self, e: &BytesStart) {
         let mut unit = Unit::new();
 
@@ -273,7 +309,7 @@ impl Store {
         self.groups.last_mut().unwrap().units.push(unit);
     }
 
-    fn handle_file(&mut self, e: &BytesStart) {
+    fn handle_file(&mut self, e: &BytesStart) -> () {
         let mut file = TranslationFile::new("");
 
         e.attributes().for_each(|a| {
@@ -296,6 +332,55 @@ impl Store {
             }
         });
         self.groups.push(file);
+    }
+
+    fn handle_header_tool(&mut self, e: &BytesStart) -> () {
+        match self.groups.last_mut().unwrap().header.as_mut() {
+            None => (),
+            Some(header) => {
+                let mut id = String::new();
+                let mut name = String::new();
+
+                e.attributes().for_each(|a| {
+                    let attr = a.unwrap();
+                    match attr.key {
+                        b"tool-id" => {
+                            id = String::from_utf8(attr.value.into_owned()).unwrap();
+                        }
+                        b"tool-name" => {
+                            name = String::from_utf8(attr.value.into_owned()).unwrap();
+                        }
+                        _ => (),
+                    }
+                });
+
+                let mut tool = Tool::new(id, name);
+
+                e.attributes().for_each(|a| {
+                    let attr = a.unwrap();
+                    match attr.key {
+                        b"tool-version" => {
+                            tool.version =
+                                Some(String::from_utf8(attr.value.into_owned()).unwrap());
+                        }
+                        b"tool-company" => {
+                            tool.company =
+                                Some(String::from_utf8(attr.value.into_owned()).unwrap());
+                        }
+                        _ => (),
+                    }
+                });
+
+                header.tools.push(tool);
+            }
+        }
+    }
+
+    fn handle_file_header(&mut self, _e: &BytesStart) -> () {
+        match self.groups.last_mut() {
+            None => (),
+            Some(file) => file.header = Some(Header::new()),
+        }
     }
 
     fn open_tag(tags: &mut Vec<TagCtx>, open_tag: TagCtx) -> () {
@@ -324,6 +409,7 @@ impl Store {
 enum TagCtx {
     File,
     Header,
+    Tool,
     Body,
     Source,
     Target,
@@ -336,12 +422,13 @@ impl TagCtx {
         match name {
             b"file" => Some(TagCtx::File),
             b"header" => Some(TagCtx::Header),
+            b"tool" => Some(TagCtx::Tool),
             b"body" => Some(TagCtx::Body),
             b"source" => Some(TagCtx::Source),
             b"target" => Some(TagCtx::Target),
             b"note" => Some(TagCtx::Note),
             b"trans-unit" => Some(TagCtx::Unit),
-            _ => None
+            _ => None,
         }
     }
 }

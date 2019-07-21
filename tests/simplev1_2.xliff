@@ -5,6 +5,8 @@
           datatype="plaintext">
         <header>
             <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="11.0" build-num="11M362v"/>
+            <note>This is a header note</note>
+            <note>This is another header note</note>
         </header>
         <body>
             <trans-unit id="fIC-hX-uRv.text" xml:space="preserve">
@@ -55,6 +57,10 @@
                 <target xml:lang="de-AT">❤</target>
                 <note>lh-check { min: 10, max: 15 }</note>
             </trans-unit>
+        </body>
+    </file>
+    <file original="file without header" datatype="plaintext" source-language="en">
+        <body>
         </body>
     </file>
 </xliff>
