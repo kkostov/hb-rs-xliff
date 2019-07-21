@@ -24,27 +24,27 @@ impl Clone for UnitValue {
 }
 
 /// A unit of translatable data.
-/// Translation unit - The <trans-unit> elements contains a <source>, <target> and associated elements.
+/// Translation unit - The `<trans-unit>` elements contains a `<source>, `<target>` and associated elements.
 pub struct Unit {
-    /// Identifier - uniquely identify the <trans-unit> within all
-    /// <trans-unit> and <bin-unit> elements within the same <file>.
+    /// Identifier - uniquely identify the `<trans-unit>` within all
+    /// `<trans-unit>` and `<bin-unit>` elements within the same `<file>.
     pub id: String,
-    /// Indicates whether the <trans-unit> is to be translated.
+    /// Indicates whether the `<trans-unit>` is to be translated.
     /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#translate
     pub translate: bool,
-    /// Source translation. The <source> element is used to delimit a unit of text
+    /// Source translation. The `<source>` element is used to delimit a unit of text
     /// that could be a paragraph, a title, a menu item, a caption, etc.
     pub source: Option<UnitValue>,
-    /// Target translation. The <target> element contains the translation of the content
-    /// of the sibling <source> element.
+    /// Target translation. The `<target>` element contains the translation of the content
+    /// of the sibling `<source>` element.
     pub target: Option<UnitValue>,
-    /// Source language - The language for the <source> elements in the given <file> element.
+    /// Source language - The language for the `<source>` elements in the given `<file>` element.
     pub source_locale: Option<Locale>,
-    /// Target language - The language for the <target> elements in the given <file> element.
+    /// Target language - The language for the `<target>` elements in the given `<file>` element.
     pub target_locale: Option<Locale>,
-    /// Note - The <note> element is used to add localization-related
-    /// comments to the XLIFF document. The content of <note> may be instructions
-    /// from developers about how to handle the <source>, comments from the translator
+    /// Note - The `<note>` element is used to add localization-related
+    /// comments to the XLIFF document. The content of `<note>` may be instructions
+    /// from developers about how to handle the `<source>, comments from the translator
     /// about the translation, or any comment from anyone involved in processing the XLIFF file.
     pub note: Option<UnitValue>,
 }
@@ -63,7 +63,7 @@ impl Unit {
         }
     }
 
-    /// Get a reference to the value of the <source> element in this translation `Unit`.
+    /// Get a reference to the value of the `<source>` element in this translation `Unit`.
     pub fn source_text(&self) -> Option<&String> {
         match self.source.as_ref() {
             None => None,
@@ -71,7 +71,7 @@ impl Unit {
         }
     }
 
-    /// Get a reference to the value of the <target> element in this translation `Unit`.
+    /// Get a reference to the value of the `<target>` element in this translation `Unit`.
     pub fn target_text(&self) -> Option<&String> {
         match self.target.as_ref() {
             None => None,
@@ -96,17 +96,17 @@ impl Locale {
     }
 }
 
-/// File - The <file> element corresponds to a single extracted original document.
+/// File - The `<file>` element corresponds to a single extracted original document.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#file
 pub struct TranslationFile {
     /// Original file - The original attribute specifies the name of
-    /// the original file from which the contents of a <file> element has been extracted.
+    /// the original file from which the contents of a `<file>` element has been extracted.
     pub address: String,
-    /// Source language - The language for the <source> elements
-    /// in the given <file> element.
+    /// Source language - The language for the `<source>` elements
+    /// in the given `<file>` element.
     pub source_locale: Option<Locale>,
-    /// Target language - The language for the <target> elements
-    /// in the given <file> element.
+    /// Target language - The language for the `<target>` elements
+    /// in the given `<file>` element.
     pub target_locale: Option<Locale>,
     /// Translation units - A collection of translation units for the given file
     pub units: Vec<Unit>,
@@ -130,12 +130,12 @@ impl TranslationFile {
     }
 }
 
-/// Tool - The <tool> element describes the tool that has been used
+/// Tool - The `<tool>` element describes the tool that has been used
 /// to execute a given task in the document.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#tool_elem
 pub struct Tool {
-    /// Tool identifier - The tool-id attribute allows unique identification of a <tool> element.
-    /// It is also used in other elements in the file to refer to the given <tool> element.
+    /// Tool identifier - The tool-id attribute allows unique identification of a `<tool>` element.
+    /// It is also used in other elements in the file to refer to the given `<tool>` element.
     pub id: String,
     /// Tool name - The tool-name attribute specifies the name of a given tool.
     pub name: String,
@@ -156,7 +156,7 @@ impl Tool {
     }
 }
 
-/// File header - The <header> element contains metadata relating to the <file> element.
+/// File header - The `<header>` element contains metadata relating to the `<file>` element.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#header
 pub struct Header {
     /// Tools used within this document
