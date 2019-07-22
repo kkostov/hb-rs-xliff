@@ -5,6 +5,9 @@ XLIFF Parser
 
 This is a library for reading and writing localized text stored in XLIFF format.
 
+[Docs](https://docs.rs/xliff)
+
+⚠ This is work in progress - check below for the current status of the implementation.
 
 ## Example
 
