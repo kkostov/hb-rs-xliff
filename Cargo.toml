@@ -12,7 +12,7 @@ repository = "https://github.com/kkostov/hb-rs-xliff"
 exclude = [".idea/*"]
 
 [dependencies]
-quick-xml = "^0.15.0"
+quick-xml = "0.17"
 
 [badges]
 travis-ci = { repository = "kkostov/hb-rs-xliff", branch = "master" }
