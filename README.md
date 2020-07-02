@@ -6,7 +6,9 @@ XLIFF Parser
 This is a library for reading and writing localized text stored in XLIFF format.
 
 
-## Example
+## Examples
+
+### Reading XLIFF file
 
 ```rust no-run
 
@@ -15,16 +17,41 @@ let path: PathBuf = [env!("CARGO_MANIFEST_DIR"), "tests", "simplev1_2.xliff"]
         .collect();
 let translations = T::load(&path);
 
-let translation = sut.t(None, "Some text");
+let translation = translations.t(None, "Some text");
 
 assert_eq!(
         translation.source_text().unwrap(),
         "Some text"
     );
-    assert_eq!(
-        translation.target_text().unwrap(),
-        "je précise quelque chose de très..."
-    );
+assert_eq!(
+    translation.target_text().unwrap(),
+    "je précise quelque chose de très..."
+);
+```
+
+### Reading XLIFF string
+
+```rust no-run
+
+let xliff_string = r#"<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="1.2" xsi:schemaLocation="urn:oasis:names:tc:xliff:document:1.2 http://docs.oasis-open.org/xliff/v1.2/os/xliff-core-1.2-strict.xsd">
+  <file original="HelloWidgets/en.lproj/InfoPlist.strings" source-language="en" target-language="en" datatype="plaintext">
+    <header>
+      <tool tool-id="com.apple.dt.xcode" tool-name="Xcode" tool-version="12.0" build-num="12A6159"/>
+    </header>
+    <body>
+      <trans-unit id="CFBundleName" xml:space="preserve">
+        <source>HelloWidgets</source>
+        <target>HelloWidgets Translated</target>
+        <note>Bundle name</note>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>"#;
+
+let translations = T::load_str(xliff_string);
+let translation = translations.t(None, "CFBundleName");
+
 ```
 ## Changelog
 

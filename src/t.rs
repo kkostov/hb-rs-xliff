@@ -11,6 +11,17 @@ pub struct T {
 }
 
 impl T {
+    /// Reads and interprets the contents of the specified string.
+    ///
+    /// # Errors
+    /// This function will return an error if reading or interpreting the XLIFF string is unsuccessfull.
+    pub fn load_str(string: &str) -> Self {
+        let mut store: Store = Store::new();
+        store.load(string.as_bytes());
+
+        return T { store };
+    }
+
     /// Reads and interprets the contents of the specified file.
     ///
     /// # Errors
