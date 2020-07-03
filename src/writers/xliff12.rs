@@ -1,7 +1,7 @@
 //! Defines XLIFF 1.2 compatible output writer
 
 use std::error::Error;
-use std::io::{Cursor};
+use std::io::Cursor;
 
 use quick_xml::Writer;
 
@@ -10,14 +10,13 @@ pub use super::traits::XliffWriter;
 use crate::store::Store;
 use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, Event};
 
-
 type WriterResult = Result<(), Box<dyn Error>>;
 
 /// XLIFF 1.2 compatible output writer
 pub struct WriterXliff12;
 
 impl XliffWriter for WriterXliff12 {
-    fn write(store: &Store) -> Result<Vec<u8>, Box<dyn Error>> {
+    fn write(_store: &Store) -> Result<Vec<u8>, Box<dyn Error>> {
         let mut writer = Writer::new(Cursor::new(Vec::new()));
 
         WriterXliff12::print_envelope(&mut writer)?;

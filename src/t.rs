@@ -7,7 +7,8 @@ use std::path::Path;
 
 /// Translation helper
 pub struct T {
-    store: Store,
+    /// The currently loaded translations grouped by context.
+    pub store: Store,
 }
 
 impl T {

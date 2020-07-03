@@ -3,7 +3,6 @@ extern crate xliff;
 use xliff::store::Store;
 use xliff::writers::xliff12::*;
 
-
 #[test]
 fn test_print_empty_store() {
     let store = Store::new();
@@ -11,5 +10,8 @@ fn test_print_empty_store() {
 
     let result = WriterXliff12::write(&store);
     assert!(result.is_ok());
-    assert_eq!(String::from_utf8(result.unwrap()).unwrap(), expected.to_string());
+    assert_eq!(
+        String::from_utf8(result.unwrap()).unwrap(),
+        expected.to_string()
+    );
 }

@@ -45,6 +45,6 @@
 #![deny(missing_docs)]
 #![recursion_limit = "1024"]
 
-pub mod writers;
 pub mod store;
 pub mod t;
+pub mod writers;

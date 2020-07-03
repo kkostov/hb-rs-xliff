@@ -135,13 +135,10 @@ fn test_t_load_translation_from_string() {
     let translation = result.unwrap();
 
     assert_eq!(translation.id, "CFBundleName");
+    assert_eq!(translation.source_text().unwrap(), "HelloWidgets");
     assert_eq!(
-        translation.source_text().unwrap(),
-        "HelloWidgets"
+        translation.target_text().unwrap(),
+        "HelloWidgets Translated"
     );
-    assert_eq!(translation.target_text().unwrap(), "HelloWidgets Translated");
-    assert_eq!(
-        translation.note.as_ref().unwrap().text,
-        r#"Bundle name"#
-    );
+    assert_eq!(translation.note.as_ref().unwrap().text, r#"Bundle name"#);
 }
