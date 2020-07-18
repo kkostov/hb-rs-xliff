@@ -16,3 +16,12 @@ script:
   - cargo build --no-default-features
   - cargo test
   - cargo test --no-default-features
+
+
+matrix:
+  include:
+    - language: rust
+      rust: stable
+      name: "check wasm32 support"
+      install: rustup target add wasm32-unknown-unknown
+      script: cargo check --target wasm32-unknown-unknown

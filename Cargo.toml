@@ -14,6 +14,9 @@ exclude = [".idea/*", ".DS_Store"]
 [dependencies]
 quick-xml = "0.17"
 
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wasm-bindgen = "0.2.63"
+
 [badges]
 travis-ci = { repository = "kkostov/hb-rs-xliff", branch = "master" }
 maintenance = { status = "experimental" }
