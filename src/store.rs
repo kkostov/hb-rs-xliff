@@ -6,6 +6,7 @@ use quick_xml::Reader;
 use std::io::BufRead;
 
 /// The content of a translation unit or a note
+#[derive(PartialEq)]
 pub struct UnitValue {
     /// Plain text value of the node.
     pub text: String,
@@ -25,6 +26,7 @@ impl Clone for UnitValue {
 
 /// A unit of translatable data.
 /// Translation unit - The `<trans-unit>` elements contains a `<source>, `<target>` and associated elements.
+#[derive(PartialEq)]
 pub struct Unit {
     /// Identifier - uniquely identify the `<trans-unit>` within all
     /// `<trans-unit>` and `<bin-unit>` elements within the same `<file>.
@@ -81,6 +83,7 @@ impl Unit {
 }
 
 /// Language definition
+#[derive(PartialEq)]
 pub struct Locale {
     /// A language code as described in the [RFC 4646], the successor to [RFC 3066].
     /// The values for this attribute follow the same rules as the values for xml:lang.
@@ -127,6 +130,24 @@ impl TranslationFile {
             data_type: String::new(),
             header: None,
         }
+    }
+
+    pub(crate) fn attributes(&self) -> Vec<(&str, &str)> {
+        let mut file_attributes: Vec<(&str, &str)> = vec![
+            ("original", &self.address.as_str()),
+            ("datatype", &self.data_type.as_str()),
+        ];
+
+        if let Some(s_locale) = &self.source_locale {
+            file_attributes.push(("source-language", s_locale.identifier.as_str()));
+        }
+
+        if let Some(t_locale) = &self.target_locale {
+            file_attributes.push(("target-language", t_locale.identifier.as_str()));
+        }
+
+        file_attributes
+        // Vec<(&str, &str)> = vec![("original", &file.address.as_str())]
     }
 }
 
@@ -328,6 +349,7 @@ impl Store {
                         String::from_utf8(attr.value.into_owned()).unwrap(),
                     ))
                 }
+                b"datatype" => file.data_type = String::from_utf8(attr.value.into_owned()).unwrap(),
                 _ => (),
             }
         });
@@ -406,7 +428,7 @@ impl Store {
 
 /// The XML tag in which the current operation is taking place
 #[derive(PartialEq, Copy, Clone)]
-enum TagCtx {
+pub(crate) enum TagCtx {
     File,
     Header,
     Tool,
@@ -415,11 +437,13 @@ enum TagCtx {
     Target,
     Note,
     Unit,
+    Xliff,
 }
 
 impl TagCtx {
-    fn from(name: &[u8]) -> Option<Self> {
+    pub(crate) fn from(name: &[u8]) -> Option<Self> {
         match name {
+            b"xliff" => Some(TagCtx::Xliff),
             b"file" => Some(TagCtx::File),
             b"header" => Some(TagCtx::Header),
             b"tool" => Some(TagCtx::Tool),
@@ -429,6 +453,20 @@ impl TagCtx {
             b"note" => Some(TagCtx::Note),
             b"trans-unit" => Some(TagCtx::Unit),
             _ => None,
+        }
+    }
+
+    pub(crate) fn to_str(&self) -> &str {
+        match &self {
+            TagCtx::File => "file",
+            TagCtx::Header => "header",
+            TagCtx::Tool => "tool",
+            TagCtx::Body => "body",
+            TagCtx::Source => "source",
+            TagCtx::Target => "target",
+            TagCtx::Note => "note",
+            TagCtx::Unit => "trans-unit",
+            TagCtx::Xliff => "xliff",
         }
     }
 }

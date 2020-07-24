@@ -66,6 +66,8 @@ fn test_sample_reads_file_attributes() {
             assert_eq!(locale.identifier, "bg");
         }
     }
+
+    assert_eq!(sut.groups[0].data_type, String::from("plaintext"));
 }
 
 #[test]
