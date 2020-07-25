@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use xliff::store::Store;
+use xliff::store::{Store, TranslationFile, Unit};
 use xliff::t::T;
 use xliff::writers::xliff12::*;
 
@@ -123,5 +123,61 @@ fn test_writes_header_notes() {
     assert!(
         at_least_one_note,
         "Test data is missing at least one header with a note."
+    );
+}
+
+#[test]
+fn test_writes_body() {
+    // load the sample xliff
+    let sample_file: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut store: xliff::store::Store = Store::new();
+    store.load(sample_file);
+
+    // export the contents to a string
+    let result = WriterXliff12::write(&store);
+    let result_string = String::from_utf8(result.unwrap()).unwrap();
+
+    assert!(result_string.contains("<body>"));
+    assert!(result_string.contains("</body>"));
+}
+
+#[test]
+fn test_writes_body_units() {
+    // load the sample xliff
+    let sample_file: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut store: xliff::store::Store = Store::new();
+    store.load(sample_file);
+
+    // export the contents to a string
+    let result = WriterXliff12::write(&store);
+    let result_string = String::from_utf8(result.unwrap()).unwrap();
+
+    // load the string to a new store, so we can assert
+    let t = T::load_str(result_string.as_str());
+
+    let mut at_least_one_note = false;
+    for (g_ix, group) in store.groups.iter().enumerate() {
+        let written_group = t.store.groups.get(g_ix);
+        assert!(&written_group.is_some());
+
+        for (u_ix, unit) in group.units.iter().enumerate() {
+            at_least_one_note = true;
+
+            let written_unit = written_group.unwrap().units.get(u_ix);
+            assert!(&written_unit.is_some());
+            assert!(
+                &written_unit.unwrap().source.is_some(),
+                "All units must have a source tag."
+            );
+            assert!(&written_unit.unwrap().source == &unit.source);
+            assert!(&written_unit.unwrap().target == &unit.target);
+            assert!(&written_unit.unwrap().note == &unit.note);
+            assert_eq!(&written_unit.unwrap().translate, &unit.translate);
+        }
+    }
+
+    assert!(
+        at_least_one_note,
+        "Test data is missing at least one translation unit."
     );
 }

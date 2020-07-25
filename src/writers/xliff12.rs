@@ -7,7 +7,7 @@ use quick_xml::Writer;
 
 pub use super::traits::XliffWriter;
 
-use crate::store::{Store, TagCtx, TranslationFile};
+use crate::store::{Store, TagCtx, TranslationFile, Unit};
 use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event};
 
 type WriterResult = Result<(), Box<dyn Error>>;
@@ -25,6 +25,7 @@ impl XliffWriter for WriterXliff12 {
             Self::open_tag(&mut writer, TagCtx::File.to_str(), Some(file.attributes()))?;
 
             Self::write_header(&mut writer, &file)?;
+            Self::write_body(&mut writer, &file)?;
 
             Self::close_tag(&mut writer, TagCtx::File.to_str())?;
         }
@@ -79,6 +80,67 @@ impl WriterXliff12 {
         writer.write_event(Event::End(elem))?;
         writer.write_event(Event::Eof)?;
         Ok(())
+    }
+}
+
+impl WriterXliff12 {
+    fn write_body(writer: &mut Writer<Cursor<Vec<u8>>>, file: &TranslationFile) -> WriterResult {
+        Self::open_tag(writer, TagCtx::Body.to_str(), None)?;
+
+        for unit in &file.units {
+            match &unit.source {
+                None => (),
+                Some(unit_source) => {
+                    Self::open_tag(
+                        writer,
+                        TagCtx::Unit.to_str(),
+                        Some(Self::unit_attributes(unit)),
+                    )?;
+
+                    Self::open_tag(writer, TagCtx::Source.to_str(), None)?;
+                    Self::write_text(writer, unit_source.text.as_str())?;
+                    Self::close_tag(writer, TagCtx::Source.to_str())?;
+
+                    match &unit.target {
+                        None => (),
+                        Some(unit_target) => {
+                            Self::open_tag(writer, TagCtx::Target.to_str(), None)?;
+                            Self::write_text(writer, unit_target.text.as_str())?;
+                            Self::close_tag(writer, TagCtx::Target.to_str())?;
+                        }
+                    }
+
+                    match &unit.note {
+                        None => (),
+                        Some(unit_note) => {
+                            Self::open_tag(writer, TagCtx::Note.to_str(), None)?;
+                            Self::write_text(writer, unit_note.text.as_str())?;
+                            Self::close_tag(writer, TagCtx::Note.to_str())?;
+                        }
+                    }
+
+                    Self::close_tag(writer, TagCtx::Unit.to_str())?;
+                }
+            }
+        }
+
+        Self::close_tag(writer, TagCtx::Body.to_str())?;
+        Ok(())
+    }
+
+    fn unit_attributes(unit: &Unit) -> Vec<(&str, &str)> {
+        vec![
+            ("id", unit.id.as_str()),
+            ("translate", Self::unit_translate_value(unit)),
+            ("xml:space" = "preserve"),
+        ]
+    }
+
+    fn unit_translate_value(unit: &Unit) -> &str {
+        match unit.translate {
+            true => "true",
+            false => "false",
+        }
     }
 }
 
