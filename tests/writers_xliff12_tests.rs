@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use xliff::store::{Store, TranslationFile, Unit};
+use xliff::store::Store;
 use xliff::t::T;
 use xliff::writers::xliff12::*;
 

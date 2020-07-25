@@ -132,7 +132,7 @@ impl WriterXliff12 {
         vec![
             ("id", unit.id.as_str()),
             ("translate", Self::unit_translate_value(unit)),
-            ("xml:space" = "preserve"),
+            ("xml:space", "preserve"),
         ]
     }
 
