@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use xliff::store::{Store, Tool};
+use xliff::store::Store;
 use xliff::t::T;
 use xliff::writers::xliff12::*;
 
@@ -29,7 +29,7 @@ fn test_writes_file_for_each_group_in_order() {
     let result_string = String::from_utf8(result.unwrap()).unwrap();
 
     // load the string to a new store, so we can assert
-    let mut t = T::load_str(result_string.as_str());
+    let t = T::load_str(result_string.as_str());
 
     assert_eq!(t.store.groups.len(), 4);
 
@@ -74,7 +74,7 @@ fn test_writes_header_tools() {
                 );
 
                 // the <tool> header depends on the current writer
-                for (ix, tool) in header.tools.iter().enumerate() {
+                for (ix, _tool) in header.tools.iter().enumerate() {
                     assert_eq!(
                         written_tools.get(ix).unwrap().id,
                         "eu.headbright.hb-rs-xliff"
@@ -84,4 +84,44 @@ fn test_writes_header_tools() {
             }
         }
     }
+}
+
+#[test]
+fn test_writes_header_notes() {
+    // load the sample xliff
+    let sample_file: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut store: xliff::store::Store = Store::new();
+    store.load(sample_file);
+
+    // export the contents to a string
+    let result = WriterXliff12::write(&store);
+    let result_string = String::from_utf8(result.unwrap()).unwrap();
+
+    // load the string to a new store, so we can assert
+    let t = T::load_str(result_string.as_str());
+
+    assert_eq!(t.store.groups.len(), 4);
+    let mut at_least_one_note = false;
+
+    for (ix, group) in store.groups.iter().enumerate() {
+        let written = t.store.groups.get(ix);
+        assert!(&written.is_some());
+
+        if let Some(header) = &group.header {
+            if !header.notes.is_empty() {
+                let written_notes = &written.unwrap().header.as_ref().unwrap().notes;
+                assert_eq!(written_notes.len(), header.notes.len());
+
+                for (ix, note) in header.notes.iter().enumerate() {
+                    at_least_one_note = true;
+                    assert_eq!(written_notes.get(ix).unwrap().text, note.text);
+                }
+            }
+        }
+    }
+
+    assert!(
+        at_least_one_note,
+        "Test data is missing at least one header with a note."
+    );
 }

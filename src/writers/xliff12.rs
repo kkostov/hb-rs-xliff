@@ -7,9 +7,8 @@ use quick_xml::Writer;
 
 pub use super::traits::XliffWriter;
 
-use crate::store::{Store, TagCtx};
-use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, Event};
-use std::collections::HashMap;
+use crate::store::{Store, TagCtx, TranslationFile};
+use quick_xml::events::{BytesDecl, BytesEnd, BytesStart, BytesText, Event};
 
 type WriterResult = Result<(), Box<dyn Error>>;
 
@@ -23,18 +22,11 @@ impl XliffWriter for WriterXliff12 {
         WriterXliff12::print_envelope(&mut writer)?;
 
         for file in &store.groups {
-            Self::open_tag(&mut writer, TagCtx::File.to_str(), Some(file.attributes()));
+            Self::open_tag(&mut writer, TagCtx::File.to_str(), Some(file.attributes()))?;
 
-            if let Some(file_header) = &file.header {
-                Self::open_tag(&mut writer, TagCtx::Header.to_str(), None);
-                for tool in &file_header.tools {
-                    Self::open_tag(&mut writer, TagCtx::Tool.to_str(), Some(tool.attributes()));
-                    Self::close_tag(&mut writer, TagCtx::Tool.to_str());
-                }
-                Self::close_tag(&mut writer, TagCtx::Header.to_str());
-            }
+            Self::write_header(&mut writer, &file)?;
 
-            Self::close_tag(&mut writer, TagCtx::File.to_str());
+            Self::close_tag(&mut writer, TagCtx::File.to_str())?;
         }
 
         WriterXliff12::print_envelope_end(&mut writer)?;
@@ -76,10 +68,38 @@ impl WriterXliff12 {
         Ok(())
     }
 
+    fn write_text(writer: &mut Writer<Cursor<Vec<u8>>>, text: &str) -> WriterResult {
+        let elem = BytesText::from_plain_str(text);
+        writer.write_event(Event::Text(elem))?;
+        Ok(())
+    }
+
     fn close_tag(writer: &mut Writer<Cursor<Vec<u8>>>, tag: &str) -> WriterResult {
         let elem = BytesEnd::owned(tag.as_bytes().to_vec());
         writer.write_event(Event::End(elem))?;
         writer.write_event(Event::Eof)?;
+        Ok(())
+    }
+}
+
+impl WriterXliff12 {
+    fn write_header(
+        mut writer: &mut Writer<Cursor<Vec<u8>>>,
+        file: &TranslationFile,
+    ) -> WriterResult {
+        if let Some(file_header) = &file.header {
+            Self::open_tag(&mut writer, TagCtx::Header.to_str(), None)?;
+            for tool in &file_header.tools {
+                Self::open_tag(&mut writer, TagCtx::Tool.to_str(), Some(tool.attributes()))?;
+                Self::close_tag(&mut writer, TagCtx::Tool.to_str())?;
+            }
+            for note in &file_header.notes {
+                Self::open_tag(&mut writer, TagCtx::Note.to_str(), None)?;
+                Self::write_text(&mut writer, note.text.as_str())?;
+                Self::close_tag(&mut writer, TagCtx::Note.to_str())?;
+            }
+            Self::close_tag(&mut writer, TagCtx::Header.to_str())?;
+        }
         Ok(())
     }
 }
