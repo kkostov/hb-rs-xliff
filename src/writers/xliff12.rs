@@ -24,6 +24,16 @@ impl XliffWriter for WriterXliff12 {
 
         for file in &store.groups {
             Self::open_tag(&mut writer, TagCtx::File.to_str(), Some(file.attributes()));
+
+            if let Some(file_header) = &file.header {
+                Self::open_tag(&mut writer, TagCtx::Header.to_str(), None);
+                for tool in &file_header.tools {
+                    Self::open_tag(&mut writer, TagCtx::Tool.to_str(), Some(tool.attributes()));
+                    Self::close_tag(&mut writer, TagCtx::Tool.to_str());
+                }
+                Self::close_tag(&mut writer, TagCtx::Header.to_str());
+            }
+
             Self::close_tag(&mut writer, TagCtx::File.to_str());
         }
 

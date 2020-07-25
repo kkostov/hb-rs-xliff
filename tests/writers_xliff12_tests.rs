@@ -1,6 +1,6 @@
 extern crate xliff;
 
-use xliff::store::Store;
+use xliff::store::{Store, Tool};
 use xliff::t::T;
 use xliff::writers::xliff12::*;
 
@@ -18,7 +18,7 @@ fn test_print_empty_store() {
 }
 
 #[test]
-fn test_writes_file_for_each_group() {
+fn test_writes_file_for_each_group_in_order() {
     // load the sample xliff
     let sample_file: &[u8] = include_bytes!("simplev1_2.xliff");
     let mut store: xliff::store::Store = Store::new();
@@ -32,10 +32,20 @@ fn test_writes_file_for_each_group() {
     let mut t = T::load_str(result_string.as_str());
 
     assert_eq!(t.store.groups.len(), 4);
+
+    for (ix, group) in store.groups.iter().enumerate() {
+        let written = t.store.groups.get(ix);
+        assert!(written.is_some());
+        assert!(written.unwrap().address == group.address);
+        assert!(written.unwrap().source_locale == group.source_locale);
+        assert!(written.unwrap().target_locale == group.target_locale);
+        assert!(written.unwrap().data_type == group.data_type);
+        assert!(written.unwrap().header.is_some() == group.header.is_some());
+    }
 }
 
 #[test]
-fn test_writes_file_attributes_from_group() {
+fn test_writes_header_tools() {
     // load the sample xliff
     let sample_file: &[u8] = include_bytes!("simplev1_2.xliff");
     let mut store: xliff::store::Store = Store::new();
@@ -45,14 +55,33 @@ fn test_writes_file_attributes_from_group() {
     let result = WriterXliff12::write(&store);
     let result_string = String::from_utf8(result.unwrap()).unwrap();
 
-    // parse the string
-    let mut t = T::load_str(result_string.as_str());
+    // load the string to a new store, so we can assert
+    let t = T::load_str(result_string.as_str());
 
-    for group in store.groups {
-        assert!(t.store.groups.iter().any(|g| g.address == group.address
-            && g.source_locale == group.source_locale
-            && g.target_locale == group.target_locale
-            && g.data_type == group.data_type))
-    }
     assert_eq!(t.store.groups.len(), 4);
+
+    for (ix, group) in store.groups.iter().enumerate() {
+        let written = t.store.groups.get(ix);
+        assert!(&written.is_some());
+
+        if let Some(header) = &group.header {
+            if !header.tools.is_empty() {
+                let written_tools = &written.unwrap().header.as_ref().unwrap().tools;
+                assert!(
+                    !written_tools.is_empty(),
+                    "Missing tool in header for file {}",
+                    group.address
+                );
+
+                // the <tool> header depends on the current writer
+                for (ix, tool) in header.tools.iter().enumerate() {
+                    assert_eq!(
+                        written_tools.get(ix).unwrap().id,
+                        "eu.headbright.hb-rs-xliff"
+                    );
+                    assert_eq!(written_tools.get(ix).unwrap().name, "Rust Xliff Crate");
+                }
+            }
+        }
+    }
 }

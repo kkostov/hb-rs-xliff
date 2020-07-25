@@ -101,6 +101,7 @@ impl Locale {
 
 /// File - The `<file>` element corresponds to a single extracted original document.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#file
+#[derive(PartialEq)]
 pub struct TranslationFile {
     /// Original file - The original attribute specifies the name of
     /// the original file from which the contents of a `<file>` element has been extracted.
@@ -147,13 +148,13 @@ impl TranslationFile {
         }
 
         file_attributes
-        // Vec<(&str, &str)> = vec![("original", &file.address.as_str())]
     }
 }
 
 /// Tool - The `<tool>` element describes the tool that has been used
 /// to execute a given task in the document.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#tool_elem
+#[derive(PartialEq)]
 pub struct Tool {
     /// Tool identifier - The tool-id attribute allows unique identification of a `<tool>` element.
     /// It is also used in other elements in the file to refer to the given `<tool>` element.
@@ -175,10 +176,18 @@ impl Tool {
             company: None,
         }
     }
+
+    pub(crate) fn attributes(&self) -> Vec<(&str, &str)> {
+        vec![
+            ("tool-id", "eu.headbright.hb-rs-xliff"),
+            ("tool-name", "Rust Xliff Crate"),
+        ]
+    }
 }
 
 /// File header - The `<header>` element contains metadata relating to the `<file>` element.
 /// http://docs.oasis-open.org/xliff/v1.2/os/xliff-core.html#header
+#[derive(PartialEq)]
 pub struct Header {
     /// Tools used within this document
     pub tools: Vec<Tool>,
@@ -235,6 +244,7 @@ impl Store {
                             TagCtx::File => self.handle_file(e),
                             TagCtx::Unit => self.handle_trans_unit(e),
                             TagCtx::Header => self.handle_file_header(e),
+                            TagCtx::Tool => self.handle_header_tool(e),
                             _ => (),
                         }
                     }
