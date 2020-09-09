@@ -179,8 +179,8 @@ impl Tool {
 
     pub(crate) fn attributes(&self) -> Vec<(&str, &str)> {
         vec![
-            ("tool-id", "eu.headbright.hb-rs-xliff"),
-            ("tool-name", "Rust Xliff Crate"),
+            ("tool-id", self.id.as_str()),
+            ("tool-name", self.name.as_str()),
         ]
     }
 }

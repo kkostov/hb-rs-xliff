@@ -75,11 +75,8 @@ fn test_writes_header_tools() {
 
                 // the <tool> header depends on the current writer
                 for (ix, _tool) in header.tools.iter().enumerate() {
-                    assert_eq!(
-                        written_tools.get(ix).unwrap().id,
-                        "eu.headbright.hb-rs-xliff"
-                    );
-                    assert_eq!(written_tools.get(ix).unwrap().name, "Rust Xliff Crate");
+                    assert_eq!(written_tools.get(ix).unwrap().id, "com.apple.dt.xcode");
+                    assert_eq!(written_tools.get(ix).unwrap().name, "Xcode");
                 }
             }
         }
