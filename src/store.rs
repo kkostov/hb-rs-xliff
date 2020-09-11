@@ -337,7 +337,19 @@ impl Store {
                 _ => (),
             }
         });
-        self.groups.last_mut().unwrap().units.push(unit);
+
+        match self.groups.last_mut() {
+            None => panic!("missing group"),
+            Some(group) => {
+                unit.source_locale = Some(Locale::new(
+                    group.source_locale.as_ref().unwrap().identifier.clone(),
+                ));
+                unit.target_locale = Some(Locale::new(
+                    group.target_locale.as_ref().unwrap().identifier.clone(),
+                ));
+                group.units.push(unit);
+            }
+        }
     }
 
     fn handle_file(&mut self, e: &BytesStart) -> () {

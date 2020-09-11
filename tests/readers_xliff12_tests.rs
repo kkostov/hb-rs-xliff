@@ -246,3 +246,71 @@ fn test_creates_tools() {
         .company
         .is_none());
 }
+
+#[test]
+fn test_reads_source_locale_for_each_file() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    for file in sut.groups {
+        match &file.source_locale {
+            None => assert!(false, "Missing source locale."),
+            Some(file_source_locale) => {
+                assert_eq!(file_source_locale.identifier, "en");
+            }
+        }
+    }
+}
+
+#[test]
+fn test_reads_source_locale_for_each_unit() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    for file in sut.groups {
+        for unit in file.units {
+            match &unit.source_locale {
+                None => assert!(false, "Missing source locale: {}", &unit.id),
+                Some(unit_source_locale) => {
+                    assert_eq!(unit_source_locale.identifier, "en");
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn test_reads_target_locale_for_each_unit() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    for file in sut.groups {
+        for unit in file.units {
+            match &unit.target_locale {
+                None => assert!(false, "Missing target locale: {}", &unit.id),
+                Some(unit_target_locale) => {
+                    assert_eq!(unit_target_locale.identifier, "bg");
+                }
+            }
+        }
+    }
+}
+
+#[test]
+fn test_reads_target_locale_for_each_file() {
+    let src: &[u8] = include_bytes!("simplev1_2.xliff");
+    let mut sut: xliff::store::Store = Store::new();
+    sut.load(src);
+
+    for file in sut.groups {
+        match &file.target_locale {
+            None => assert!(false, "Missing target locale {}.", &file.address),
+            Some(file_target_locale) => {
+                assert_eq!(file_target_locale.identifier, "bg");
+            }
+        }
+    }
+}
